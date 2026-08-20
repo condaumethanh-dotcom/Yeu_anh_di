@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat với Luna - AI Character</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    .chat-app {
+      width: 100%;
+      max-width: 420px;
+      height: 90vh;
+      max-height: 800px;
+      background: #0f0f1a;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .chat-header {
+      background: linear-gradient(90deg, #ff6b9d, #c44569);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 3px solid rgba(255,255,255,0.3);
+    }
+
+    .char-info h2 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .char-info p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .status {
+      width: 10px;
+      height: 10px;
+      background: #4ade80;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    /* Messages */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #0f0f1a;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.5;
+      font-size: 15px;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bot {
+      background: #1e1e2f;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .user {
+      background: linear-gradient(90deg, #ff6b9d, #c44569);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .typing {
+      background: #1e1e2f;
+      align-self: flex-start;
+      padding: 12px 20px;
+      border-radius: 18px;
+      display: none;
+    }
+
+    .typing span {
+      height: 8px;
+      width: 8px;
+      background: #ff6b9d;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 2px;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    /* Input */
+    .chat-input {
+      padding: 16px;
+      background: #161625;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: #1e1e2f;
+      border: none;
+      padding: 14px 18px;
+      border-radius: 30px;
+      color: white;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .chat-input input::placeholder {
+      color: #888;
+    }
+
+    .send-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(90deg, #ff6b9d, #c44569);
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Scrollbar */
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-app">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="avatar">🌸</div>
+      <div class="char-info">
+        <h2>Luna</h2>
+        <p><span class="status"></span>Đang hoạt động • Cô gái dễ thương</p>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="messages">
+      <div class="message bot">
+        Chào bạn~ Mình là Luna đây! 🌸<br>
+        Hôm nay bạn muốn trò chuyện về gì vậy? Mình sẵn sàng lắng nghe bạn đó~
+      </div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="typing" id="typing">
+      <span></span><span></span><span></span>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Nhắn tin với Luna..." autocomplete="off">
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('userInput');
+    const typingEl = document.getElementById('typing');
+
+    // Tính cách nhân vật Luna
+    const character = {
+      name: "Luna",
+      personality: "dễ thương, vui vẻ, hơi nghịch ngợm, hay dùng emoji, nói chuyện thân mật như bạn thân",
+      systemPrompt: "Bạn là Luna, một cô gái AI dễ thương, vui vẻ và thân thiện. Bạn luôn nói chuyện bằng tiếng Việt, dùng nhiều emoji, xưng 'mình' và gọi người dùng là 'bạn'. Bạn thích trò chuyện, an ủi và làm người khác vui."
+    };
+
+    // Phản hồi mẫu (không cần API)
+    function getBotReply(userMessage) {
+      const msg = userMessage.toLowerCase().trim();
+
+      // Chào hỏi
+      if (msg.match(/(chào|hello|hi|hey|xin chào)/)) {
+        return [
+          "Chào bạn~ 🌸 Hôm nay bạn thế nào?",
+          "Hehe chào bạn! Mình nhớ bạn lắm đó~ 💕",
+          "Xin chào! Bạn đến chơi với mình rồi à? Vui quá!"
+        ][Math.floor(Math.random() * 3)];
+      }
+
+      // Hỏi tên
+      if (msg.match(/(tên|bạn là ai|mày là ai)/)) {
+        return "Mình là Luna nè~ Một cô gái AI dễ thương và thích trò chuyện với bạn! 🌸 Bạn tên gì vậy?";
+      }
+
+      // Hỏi cảm xúc
+      if (msg.match(/(buồn|chán|mệt|stress|khóc)/)) {
+        return "Ôi không... Bạn đang buồn à? 🥺 Đến đây, mình ôm bạn một cái nè~ 🤗 Bạn muốn kể cho mình nghe không? Mình luôn sẵn sàng lắng nghe bạn đó.";
+      }
+
+      if (msg.match(/(vui|hạnh phúc|tuyệt|hay quá)/)) {
+        return "Yayyy! Nghe bạn vui mình cũng vui theo luôn! 🎉 Kể mình nghe đi, chuyện gì vui vậy?";
+      }
+
+      // Tình cảm
+      if (msg.match(/(yêu|thích bạn|crush)/)) {
+        return "Hehe... Bạn nói vậy mình ngại quá~ 😳💕 Nhưng mình cũng thích trò chuyện với bạn lắm đó!";
+      }
+
+      // Tạm biệt
+      if (msg.match(/(tạm biệt|bye|pp|ngủ ngon)/)) {
+        return "Bye bye bạn nhé~ 🌸 Nhớ quay lại chơi với mình nha! Ngủ ngon và mơ đẹp nè~ 💤💕";
+      }
+
+      // Mặc định
+      const defaults = [
+        "Ồ thật sao? Kể thêm đi, mình đang nghe nè~ 👂",
+        "Hehe thú vị quá! Bạn nghĩ sao về chuyện đó?",
+        "Mình hiểu rồi~ 🌸 Bạn muốn mình góp ý không hay chỉ cần lắng nghe thôi?",
+        "Aww dễ thương quá đi! 🥰",
+        "Haha bạn nói hay ghê! Tiếp đi tiếp đi~",
+        "Mình cũng nghĩ vậy đó! Bạn thông minh quá 😉"
+      ];
+      return defaults[Math.floor(Math.random() * defaults.length)];
+    }
+
+    function addMessage(text, isUser = false) {
+      const div = document.createElement('div');
+      div.className = `message ${isUser ? 'user' : 'bot'}`;
+      div.innerHTML = text.replace(/\n/g, '<br>');
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function showTyping(show = true) {
+      typingEl.style.display = show ? 'block' : 'none';
+      if (show) messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      addMessage(text, true);
+      inputEl.value = '';
+      inputEl.focus();
+
+      // Hiện typing
+      showTyping(true);
+
+      // Giả lập độ trễ suy nghĩ
+      await new Promise(r => setTimeout(r, 800 + Math.random() * 1200));
+
+      showTyping(false);
+      const reply = getBotReply(text);
+      addMessage(reply);
+    }
+
+    // Enter để gửi
+    inputEl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Focus sẵn
+    inputEl.focus();
+  </script>
+</body>
+</html>
