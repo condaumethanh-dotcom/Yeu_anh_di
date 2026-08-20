@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Yuki AI</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #20202d;
+    color: white;
+}
+
+.app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    padding: 15px;
+    background: #29293a;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.chat {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.message {
+    padding: 10px 14px;
+    margin: 10px 0;
+    max-width: 75%;
+    border-radius: 15px;
+}
+
+.ai {
+    background: #39394d;
+}
+
+.user {
+    background: #8b65e8;
+    margin-left: auto;
+}
+
+.input {
+    display: flex;
+    padding: 10px;
+    background: #29293a;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 20px;
+    background: #3a3a4d;
+    color: white;
+}
+
+button {
+    margin-left: 8px;
+    border: none;
+    border-radius: 20px;
+    width: 50px;
+    background: #9b70ff;
+    color: white;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="header">
+🤖 Yuki AI
+</div>
+
+<div class="chat" id="chat">
+
+<div class="message ai">
+Xin chào! 💗 Mình là Yuki AI.
+</div>
+
+</div>
+
+<div class="input">
+
+<input id="input" placeholder="Nhắn tin...">
+
+<button onclick="send()">➤</button>
+
+</div>
+
+</div>
+
+<script>
+
+function send() {
+
+var input = document.getElementById("input");
+var chat = document.getElementById("chat");
+
+var text = input.value;
+
+if (text == "") {
+return;
+}
+
+var user = document.createElement("div");
+
+user.className = "message user";
+user.innerText = text;
+
+chat.appendChild(user);
+
+input.value = "";
+
+setTimeout(function() {
+
+var ai = document.createElement("div");
+
+ai.className = "message ai";
+ai.innerText = "Yuki nhận được: " + text + " 💗";
+
+chat.appendChild(ai);
+
+chat.scrollTop = chat.scrollHeight;
+
+}, 500);
+
+}
+
+</script>
+
+</body>
+  </html>
